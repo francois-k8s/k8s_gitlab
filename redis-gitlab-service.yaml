@@ -1,0 +1,9 @@
+id: redis-gitlab-service
+kind: Service
+apiVersion: v1beta1
+port: 1001
+containerPort: 6379
+selector:
+  service: gitlab-rc
+labels:
+  name: redis-service

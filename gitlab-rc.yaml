@@ -1,0 +1,68 @@
+id: gitlab-rc
+kind: ReplicationController
+apiVersion: v1beta1
+desiredState: 
+  replicas: 1
+  replicaSelector: 
+    name: gitlab
+  podTemplate: 
+    desiredState: 
+      manifest: 
+        version: v1beta1
+        id: gitlab
+        containers: 
+          - name: gitlab-redis
+            image: sameersbn/redis:latest
+            cpu: 100
+            ports:
+              - containerPort: 6379
+                hostPort: 10013
+          - name: gitlab-rc
+            image: sameersbn/gitlab:latest
+            cpu: 100
+            ports: 
+              - containerPort: 22
+                hostPort: 10011
+              - containerPort: 80
+                hostPort: 10012
+            env:
+              - name: DB_TYPE
+                value: mysql
+              - name: DB_HOST
+                value: db_server_ip_address
+              - name: DB_PORT
+                value: 33000
+              - name: DB_NAME
+                value: gitlabhq_production
+              - name: DB_USER
+                value: gitlab
+              - name: DB_PASS
+                value: neutre
+              - name: REDIS_HOST
+                value: redis_server_ip_address
+              - name: REDIS_PORT
+                value: 1001
+              - name: GITLAB_HOST
+                value: the_url_to_use
+        volumeMounts:
+          - name: docker-socket
+            mountPath: /var/run/docker.sock
+          - name: docker-bin
+            mountPath: /bin/docker
+          - name: host-share
+            mountPath: /home/git/data
+    volumes:
+      - name: docker-socket
+        source:
+          {hostDir: {path: /var/run/docker.sock}}
+      - name: docker-bin
+        source:
+          {hostDir: {path: /bin/docker}}
+      - name: host-share
+        source:
+          {hostDir: {path: /opt/shares/gitlab}}
+    labels: 
+      name: gitlab
+      service: gitlab-rc
+labels: 
+  name: gitlab-replication-controller

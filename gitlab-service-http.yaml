@@ -1,0 +1,9 @@
+id: gitlab-service-http
+kind: Service
+apiVersion: v1beta1
+port: 6000
+containerPort: 80
+selector:
+  service: gitlab-rc
+labels:
+  name: redis-service
